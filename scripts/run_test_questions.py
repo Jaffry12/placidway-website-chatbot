@@ -87,7 +87,12 @@ def main() -> int:
         disclaimer_shown = False
         for message in turns:
             started = time.perf_counter()
-            reply = ask(message, history, disclaimer_shown)
+            try:
+                reply = ask(message, history, disclaimer_shown)
+            except Exception as exc:  # record the failure and keep going
+                out += [f"**Q:** {message}", "", f"**ERROR:** {exc}", ""]
+                print(f"[ERROR    ] {message[:60]}: {exc}")
+                continue
             seconds = time.perf_counter() - started
             disclaimer_shown = disclaimer_shown or bool(reply.get("disclaimer"))
             history += [{"role": "user", "content": message}, {"role": "assistant", "content": reply["answer"]}]
@@ -102,7 +107,9 @@ def main() -> int:
             if debug.get("checks"):
                 meta += " · safety checks fired: " + "; ".join(debug["checks"])
             out += [f"<sub>{meta}</sub>", ""]
-            print(f"[{reply['status']:9}] {message[:60]}")
+            print(f"[{reply['status']:9}] {seconds:4.1f}s {message[:60]}")
+            print(f"    -> {reply['answer'][:400]!r}")
+            print(f"    sources={[s['title'][:40] for s in reply['sources']]} checks={debug.get('checks')}")
             time.sleep(args.pause)
     with open(args.out, "w", encoding="utf-8") as fh:
         fh.write("\n".join(out))

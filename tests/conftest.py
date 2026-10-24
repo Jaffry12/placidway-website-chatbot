@@ -19,6 +19,8 @@ def make_settings(tmp_path: Path, **overrides) -> Settings:
         llm_model=ANSWER_MODEL,
         llm_router_model=ROUTER_MODEL,
         llm_reasoning_effort="",
+        llm_router_reasoning_effort="",
+        llm_fallback_models=(),
         llm_timeout_s=5,
         user_agent="test-agent",
         request_delay_s=0,
@@ -42,11 +44,12 @@ class FakeLLM:
         self.answers = list(answers)
         self.calls: list[tuple[str, list[dict]]] = []
 
-    def chat_json(self, model: str, messages: list[dict], max_tokens: int = 900) -> dict:
+    def chat_json(self, model: str, messages: list[dict], max_tokens: int = 1500, reasoning_effort: str = "") -> dict:
         self.calls.append((model, messages))
         if model == ROUTER_MODEL:
             return self.router
-        return self.answers.pop(0)
+        reply = self.answers.pop(0)
+        return reply(messages) if callable(reply) else reply
 
     @property
     def answer_calls(self) -> list[list[dict]]:

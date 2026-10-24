@@ -38,6 +38,8 @@ class Settings:
     llm_model: str
     llm_router_model: str
     llm_reasoning_effort: str
+    llm_router_reasoning_effort: str
+    llm_fallback_models: tuple[str, ...]
     llm_timeout_s: float
 
     user_agent: str
@@ -63,10 +65,19 @@ def get_settings() -> Settings:
     return Settings(
         llm_api_key=os.getenv("LLM_API_KEY", ""),
         llm_base_url=os.getenv("LLM_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/"),
-        llm_model=os.getenv("LLM_MODEL", "gemini-2.5-flash"),
-        llm_router_model=os.getenv("LLM_ROUTER_MODEL", "gemini-2.5-flash-lite"),
-        llm_reasoning_effort=os.getenv("LLM_REASONING_EFFORT", "none"),
-        llm_timeout_s=float(os.getenv("LLM_TIMEOUT_S", "25")),
+        # Free-tier quotas are per model (Flash-Lite: ~500 requests/day, 10/minute; Flash: 20/day),
+        # so the router and the answerer use different Lite models and share a fallback list.
+        llm_model=os.getenv("LLM_MODEL", "gemini-3.5-flash-lite"),
+        llm_router_model=os.getenv("LLM_ROUTER_MODEL", "gemini-3.1-flash-lite"),
+        # Gemini "thinking" tokens count against max_tokens and add seconds; keep it minimal.
+        llm_reasoning_effort=os.getenv("LLM_REASONING_EFFORT", "low"),
+        llm_router_reasoning_effort=os.getenv("LLM_ROUTER_REASONING_EFFORT", ""),
+        # Tried in order when the chosen model is overloaded or rate-limited.
+        llm_fallback_models=tuple(
+            m.strip() for m in os.getenv("LLM_FALLBACK_MODELS", "gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-3.1-flash-lite-preview,gemini-3.5-flash").split(",") if m.strip()
+        ),
+        # Free-tier calls normally take 1-4 s but sometimes hang; give up early and use the next model.
+        llm_timeout_s=float(os.getenv("LLM_TIMEOUT_S", "12")),
         user_agent=os.getenv(
             "CRAWLER_USER_AGENT",
             "PlacidWayAssessmentBot/1.0 (website knowledge chatbot; contact: dawoodjaffry12@gmail.com)",
@@ -78,5 +89,5 @@ def get_settings() -> Settings:
         quote_url=os.getenv("QUOTE_URL", "https://www.placidway.com/contact-us"),
         contact_url=os.getenv("CONTACT_URL", "https://www.placidway.com/contact-us"),
         rate_limit_per_minute=_int("RATE_LIMIT_PER_MINUTE", 20),
-        retrieval_k=_int("RETRIEVAL_K", 6),
+        retrieval_k=_int("RETRIEVAL_K", 8),
     )

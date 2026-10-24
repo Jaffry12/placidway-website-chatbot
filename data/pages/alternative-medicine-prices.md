@@ -1,4 +1,4 @@
-<!-- https://www.placidway.com/search-medical-pricings/Alternative-Medicine/All/1 | fetched 2026-10-24T16:56:16+00:00 -->
+<!-- https://www.placidway.com/search-medical-pricings/Alternative-Medicine/All/1 | fetched 2026-10-24T17:23:12+00:00 -->
 
 # Alternative Medicine Cost Abroad – Compare Transparent Prices
 
@@ -144,17 +144,14 @@ Vadodara, India
 
 ### 10-Days Life Quality Improvement Program in Murter, Croatia
 Polyclinic Markov
-- Alternative Medicine
 Murter, Croatia
 
 ### Integrative Cancer Treatment
 Price starting from: $24,000
 Verita Life Thailand - Cancer Treatment in Bangkok
-- Alternative Medicine
 Bangkok, Thailand
 
 ### Local Treatment Course in Tbilisi, Georgia by Eliava
 Price starting from: $4,500
 Eliava Phage Therapy Center
-- Alternative Medicine
 Tbilisi, Georgia

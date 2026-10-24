@@ -1,4 +1,4 @@
-<!-- https://www.placidway.com/profile/5/Alternative-Cancer-Treatment-by-ITC-Immunity-Therapy-Center | fetched 2026-10-24T16:56:08+00:00 -->
+<!-- https://www.placidway.com/profile/5/Alternative-Cancer-Treatment-by-ITC-Immunity-Therapy-Center | fetched 2026-10-24T17:23:04+00:00 -->
 
 # ITC Immunity Therapy Center - Alternative Cancer Treatment in Tijuana
 
@@ -113,11 +113,9 @@ TREATING PHYSICIAN
 Dr. David Alvarez is a nice doctor at the Immunity Therapy Center. He helps people who are very sick, like those with cancer. He uses gentle and natural ways to make them feel better and get strong again.
 
 #### Dr. Adolfo Carrillo, M.D.
-TREATING PHYSICIAN
 Dr. Adolfo Carrillo is a very kind doctor at the Immunity Therapy Center. He helps people who are very sick, like those with cancer. Dr. Carrillo makes special plans to help their bodies get stronger and feel better. He gives hope and care to his patients when they need it most.
 
 #### Dr. Pablo Orozco, M.D.
-TREATING PHYSICIAN
 Dr. Pablo Orozco is a very nice doctor at ITC. He helps people who are very sick, like those with cancer. Dr. Orozco uses natural treatments to help the body get better. He makes special plans for each person to help them feel strong and healthy.
 These doctors works with other doctors to help people who are sick. They make special plans to help each person feel better. Together, they give hope and care to everyone who needs it.
 

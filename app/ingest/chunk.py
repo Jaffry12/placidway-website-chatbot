@@ -30,7 +30,9 @@ class Chunk:
 
     @property
     def search_text(self) -> str:
-        return f"{self.page_title}\n{self.section}\n{self.text}"
+        # Headings are the most telling words on these pages ("Included in the In-Patient Program"),
+        # so the section label counts twice.
+        return f"{self.page_title}\n{self.section}\n{self.section}\n{self.text}"
 
 
 def _words(text: str) -> int:

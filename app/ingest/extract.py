@@ -270,6 +270,11 @@ def extract(html: str, keep_promotions: bool = False) -> ExtractedPage:
         else:
             sections[-1].lines.append(text)
 
+    # Short lines repeated across the page (every video card says "ITC Immunity Therapy Center ...
+    # in Tijuana" and "Tijuana, Mexico") swamp keyword search; keep only their first occurrence.
+    line_counts = Counter(line for kind, _, line in walker.blocks if kind == "text" and len(line) < 120)
+    seen_repeats: set[str] = set()
+
     kept: list[Section] = []
     dropped: list[str] = []
     artifacts = 0
@@ -282,7 +287,14 @@ def extract(html: str, keep_promotions: bool = False) -> ExtractedPage:
             if section.path[-1] == noisy[0]:
                 dropped.append(noisy[0])
             continue
-        section.lines, skipped = _postprocess(section.lines)
+        deduped = []
+        for line in section.lines:
+            if line_counts[line] >= 3:
+                if line in seen_repeats:
+                    continue
+                seen_repeats.add(line)
+            deduped.append(line)
+        section.lines, skipped = _postprocess(deduped)
         artifacts += skipped
         section.lines = [ln for ln in section.lines if ln != title]
         if section.lines:

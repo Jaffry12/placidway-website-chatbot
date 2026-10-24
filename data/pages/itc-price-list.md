@@ -1,4 +1,4 @@
-<!-- https://www.placidway.com/price-list/5/Alternative-Cancer-Treatment-by-ITC-Immunity-Therapy-Center | fetched 2026-10-24T16:56:15+00:00 -->
+<!-- https://www.placidway.com/price-list/5/Alternative-Cancer-Treatment-by-ITC-Immunity-Therapy-Center | fetched 2026-10-24T17:23:11+00:00 -->
 
 # Alternative Cancer Treatment Prices at ITC Tijuana
 

@@ -18,13 +18,17 @@ intent: exactly one of
   "booking"        - asks you to book, schedule, reserve, cancel, pay, or check appointment availability.
   "quote"          - wants a personalised quote, wants to be contacted, or to talk to a person.
   "smalltalk"      - greetings, thanks, or questions about the assistant itself.
-  "out_of_scope"   - unrelated to PlacidWay, these treatments or medical travel (weather, sport, coding, news).
+  "out_of_scope"   - nothing to do with health, treatments, clinics, medical travel or PlacidWay (weather,
+                     sport, coding, news). Any question about a treatment, clinic, destination or cost is
+                     "question", even if it is probably not on these pages (e.g. dental implants).
 standalone_question: the latest message as one self-contained English question. Resolve pronouns and
   follow-ups from the conversation, e.g. "and what about recovery time?" after a question about adrenal
   cancer treatment becomes "What is the recovery time for alternative adrenal cancer treatment at ITC in
   Tijuana?". Keep every number and price the user wrote, exactly.
-search_query: 6-15 English keywords for a keyword search: the treatment, place and topic, plus likely
-  synonyms (cost price fee; included includes inclusions; in-patient out-patient; video testimonial).
+search_query: 5-12 English keywords for a keyword search: the treatment and the topic the user asked
+  about, plus close synonyms of their own words (cost -> price fee; included -> inclusions in-patient
+  out-patient program; videos -> testimonial). Do not add topics they did not ask about (no price words
+  for a question about inclusions), and skip words every page shares (ITC, Immunity Therapy Center).
 """
 
 ANSWER_SYSTEM = """\
@@ -47,10 +51,11 @@ Rules
 6. No medical advice. Do not say whether a treatment is safe, effective or right for the user's own
    condition, and do not diagnose. You may say what the pages state, then recommend they speak with
    their own doctor.
-7. You cannot book appointments, check availability, take payments or contact anyone. Say so and point
-   the user to PlacidWay's free quote / contact form.
+7. You cannot book appointments, check availability, take payments or contact anyone. If (and only if)
+   the user asks for one of these, say so and point them to PlacidWay's free quote / contact form.
 8. Reply in {language}. Be brief and friendly: 2-6 sentences, or short markdown bullets for lists.
-   Do not put URLs or source ids in the answer text; the sources are shown separately.
+   Do not put URLs or source ids in the answer text; the sources are shown separately. Don't end with
+   generic offers to help or quote reminders; the page already shows a quote button when useful.
 9. Every fact you state must come from a source you list in "citations".
 
 Return only this JSON object:

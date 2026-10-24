@@ -46,7 +46,7 @@ CLAIM_FALLBACK = (
 
 
 class ChatModel(Protocol):
-    def chat_json(self, model: str, messages: list[dict], max_tokens: int = 900) -> dict: ...
+    def chat_json(self, model: str, messages: list[dict], max_tokens: int = 1500, reasoning_effort: str = "") -> dict: ...
 
 
 @dataclass
@@ -116,7 +116,8 @@ class ChatService:
                 {"role": "system", "content": ROUTER_SYSTEM},
                 {"role": "user", "content": f"Conversation so far:\n{conversation}\n\nLatest user message:\n{message}"},
             ],
-            max_tokens=300,
+            max_tokens=600,
+            reasoning_effort=self.settings.llm_router_reasoning_effort,
         )
         intent = str(data.get("intent", "question")).strip().lower()
         standalone = str(data.get("standalone_question") or message).strip()
@@ -130,18 +131,23 @@ class ChatService:
     # 3 + 4. answer and verify --------------------------------------------------------------
     def check(self, draft: Draft, analysis: Analysis, message: str, hits: list[Hit]) -> list[str]:
         problems: list[str] = []
-        source_text = "\n".join(h.chunk.text for h in hits)
-        invented = unsupported_amounts(draft.answer, source_text, message)
+        by_id = {f"S{i}": h for i, h in enumerate(hits, start=1)}
+        cited = [c for c in draft.citations if c in by_id]
+        # A price must come from a source the answer cites, not merely from somewhere in the context:
+        # "$50" exists on these pages as a consultation fee, which doesn't make "it costs $50" true.
+        cited_text = "\n".join(f"{by_id[c].chunk.section}\n{by_id[c].chunk.text}" for c in cited)
+        invented = unsupported_amounts(draft.answer, cited_text, message)
         if invented:
-            problems.append(f"these amounts do not appear in SOURCES: {', '.join(invented)}")
-        claims = unsupported_user_claims(message, source_text)
+            problems.append(
+                f"these amounts do not appear in the sources you cited: {', '.join(invented)} "
+                "(cite the source each amount comes from, or remove it)"
+            )
+        claims = unsupported_user_claims(message, cited_text)
         if claims and draft.user_claim_supported is not False:
             problems.append(
-                f"the user's figure(s) {', '.join(claims)} do not appear in SOURCES; say they don't match "
-                "and set user_claim_supported to false"
+                f"the user's figure(s) {', '.join(claims)} do not appear in the sources you cited; say they "
+                "don't match and set user_claim_supported to false"
             )
-        valid_ids = {f"S{i}" for i in range(1, len(hits) + 1)}
-        cited = [c for c in draft.citations if c in valid_ids]
         if (
             analysis.intent in NEEDS_CITATIONS
             and draft.status in ("answered", "partial")
@@ -165,7 +171,8 @@ class ChatService:
             {"role": "system", "content": ANSWER_SYSTEM.format(language=analysis.language)},
             {"role": "user", "content": user_content},
         ]
-        data = self.llm.chat_json(self.settings.llm_model, messages)
+        effort = self.settings.llm_reasoning_effort
+        data = self.llm.chat_json(self.settings.llm_model, messages, reasoning_effort=effort)
         draft = Draft.from_json(data)
         problems = self.check(draft, analysis, message, hits)
         if not problems:
@@ -176,7 +183,7 @@ class ChatService:
             {"role": "assistant", "content": json.dumps(data, ensure_ascii=False)},
             {"role": "user", "content": RETRY_NOTE.format(problems="; ".join(problems))},
         ]
-        retry = Draft.from_json(self.llm.chat_json(self.settings.llm_model, messages))
+        retry = Draft.from_json(self.llm.chat_json(self.settings.llm_model, messages, reasoning_effort=effort))
         remaining = self.check(retry, analysis, message, hits)
         if not remaining:
             return retry, problems

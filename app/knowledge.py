@@ -8,13 +8,13 @@ into an English search query by the router model (see chat.py), so the index sta
 
 from __future__ import annotations
 
+import math
 import re
 import threading
 import unicodedata
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
-
-from rank_bm25 import BM25Okapi
 
 from .ingest.chunk import Chunk
 from .ingest.pipeline import load_snapshot
@@ -25,13 +25,18 @@ STOPWORDS = set(
     who why will with would you your about also any more most much other some such very just""".split()
 )
 MAX_PER_PAGE = 4
+PRICE_QUESTION = re.compile(r"(cost|costs|price|prices|pricing|fee|fees|cheap\w*|expensive|how much|usd)|\$", re.I)
+MONEY_IN_TEXT = re.compile(r"(\$|USD)\s?\d")
+PRICE_BOOST = 1.35  # cost questions should reach the table with the numbers, not the prose around it
 DUPLICATE_OVERLAP = 0.8  # the same patient reviews appear on three of the pages
 
 
 def _stem(word: str) -> str:
-    """Deliberately tiny, but consistent: price/prices -> pric, include/included/includes -> includ."""
+    """Deliberately tiny, but consistent: price/prices -> pric, included/inclusions -> includ."""
     if len(word) <= 4:
         return word
+    if word.endswith("usions") or word.endswith("usion"):  # inclusion -> includ, exclusion -> exclud
+        return word[: word.rindex("usion")] + "ud"
     if word.endswith("ies"):
         word = word[:-3] + "y"
     elif word.endswith("ing"):
@@ -49,6 +54,35 @@ def tokenize(text: str) -> list[str]:
     return [_stem(t) for t in re.findall(r"[a-z0-9]+", text) if t not in STOPWORDS]
 
 
+class BM25:
+    """Okapi BM25 with Lucene's always-positive IDF.
+
+    The IDF matters here: "ITC", "Tijuana" and "cancer" appear in almost every chunk, and must
+    count for little next to the words that pick the right section ("adrenal", "cost").
+    """
+
+    def __init__(self, docs: list[list[str]], k1: float = 1.2, b: float = 0.75):
+        self.k1, self.b = k1, b
+        self.term_freqs = [Counter(doc) for doc in docs]
+        self.lengths = [len(doc) for doc in docs]
+        self.avg_length = sum(self.lengths) / max(1, len(docs))
+        doc_freq = Counter(term for doc in docs for term in set(doc))
+        n = len(docs)
+        self.idf = {term: math.log(1 + (n - df + 0.5) / (df + 0.5)) for term, df in doc_freq.items()}
+
+    def scores(self, terms: list[str]) -> list[float]:
+        out = []
+        for freqs, length in zip(self.term_freqs, self.lengths):
+            norm = self.k1 * (1 - self.b + self.b * length / self.avg_length)
+            score = 0.0
+            for term in terms:
+                f = freqs.get(term)
+                if f:
+                    score += self.idf[term] * f * (self.k1 + 1) / (f + norm)
+            out.append(score)
+        return out
+
+
 @dataclass
 class Hit:
     chunk: Chunk
@@ -61,8 +95,9 @@ class KnowledgeBase:
         self.pages = {p["id"]: p for p in snapshot["pages"]}
         self.chunks = [Chunk(**c) for c in snapshot["chunks"]]
         corpus = [tokenize(c.search_text) for c in self.chunks]
-        self._index = BM25Okapi(corpus) if corpus else None
+        self._index = BM25(corpus) if corpus else None
         self._token_sets = [set(tokenize(c.text)) for c in self.chunks]
+        self._has_money = [bool(MONEY_IN_TEXT.search(c.text)) for c in self.chunks]
 
     @classmethod
     def from_file(cls, path: Path) -> "KnowledgeBase":
@@ -76,10 +111,13 @@ class KnowledgeBase:
         return self.snapshot.get("built_at", "")
 
     def search(self, query: str, k: int = 6) -> list[Hit]:
-        terms = tokenize(query)
+        # Each term once: the rewritten question repeats "ITC ... Tijuana" and would drown the rest.
+        terms = list(dict.fromkeys(tokenize(query)))
         if not terms or self._index is None:
             return []
-        scores = self._index.get_scores(terms)
+        scores = self._index.scores(terms)
+        if PRICE_QUESTION.search(query):
+            scores = [s * PRICE_BOOST if self._has_money[i] else s for i, s in enumerate(scores)]
         query_terms = set(terms)
         ranked = sorted(range(len(self.chunks)), key=lambda i: scores[i], reverse=True)
         hits: list[Hit] = []
