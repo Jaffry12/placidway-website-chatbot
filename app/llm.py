@@ -6,6 +6,7 @@ import json
 import logging
 import re
 import time
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 
 import httpx
 
@@ -55,18 +56,45 @@ class LLMClient:
         )
 
     def chat_json(self, model: str, messages: list[dict], max_tokens: int = 1500, reasoning_effort: str = "") -> dict:
-        """Call `model`; if it's overloaded (free tiers often are), fall back to the next model."""
+        """Call `model`, falling back to the next model when one fails.
+
+        Free-tier latency is spiky (the same call takes 1.5 s or 20 s), so the request is also
+        hedged: if the current model hasn't answered after `llm_hedge_after_s`, the next model is
+        asked in parallel and the first valid answer wins.
+        """
         candidates = [model] + [m for m in self.settings.llm_fallback_models if m != model]
         now = time.monotonic()
-        ready = [m for m in candidates if self._resting_until.get(m, 0) <= now]
-        last_error: LLMError = LLMUnavailable("every model is out of quota right now")
-        for candidate in ready or candidates:
-            try:
-                return self._call(candidate, messages, max_tokens, reasoning_effort)
-            except LLMUnavailable as exc:
-                log.warning("model %s unavailable (%s); trying the next one", candidate, exc)
-                last_error = exc
-        raise last_error
+        queue = [m for m in candidates if self._resting_until.get(m, 0) <= now] or candidates
+        hedge_after = self.settings.llm_hedge_after_s
+        pool = ThreadPoolExecutor(max_workers=2)
+        pending: dict = {}
+        errors: list[LLMError] = []
+
+        def launch() -> None:
+            candidate = queue.pop(0)
+            pending[pool.submit(self._call, candidate, messages, max_tokens, reasoning_effort)] = candidate
+
+        launch()
+        try:
+            while pending:
+                can_hedge = bool(queue) and len(pending) < 2 and hedge_after > 0
+                done, _ = wait(pending, timeout=hedge_after if can_hedge else None, return_when=FIRST_COMPLETED)
+                if not done:
+                    log.info("model %s is slow; asking %s in parallel", next(iter(pending.values())), queue[0])
+                    launch()
+                    continue
+                for future in done:
+                    candidate = pending.pop(future)
+                    try:
+                        return future.result()
+                    except LLMError as exc:
+                        log.warning("model %s failed (%s); trying the next one", candidate, exc)
+                        errors.append(exc)
+                        if queue and not pending:
+                            launch()
+            raise errors[-1] if errors else LLMUnavailable("no model available")
+        finally:
+            pool.shutdown(wait=False, cancel_futures=True)
 
     def _call(self, model: str, messages: list[dict], max_tokens: int, reasoning_effort: str) -> dict:
         body: dict = {

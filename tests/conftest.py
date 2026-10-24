@@ -21,6 +21,7 @@ def make_settings(tmp_path: Path, **overrides) -> Settings:
         llm_reasoning_effort="",
         llm_router_reasoning_effort="",
         llm_fallback_models=(),
+        llm_hedge_after_s=0,
         llm_timeout_s=5,
         user_agent="test-agent",
         request_delay_s=0,

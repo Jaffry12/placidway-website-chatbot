@@ -40,6 +40,7 @@ class Settings:
     llm_reasoning_effort: str
     llm_router_reasoning_effort: str
     llm_fallback_models: tuple[str, ...]
+    llm_hedge_after_s: float
     llm_timeout_s: float
 
     user_agent: str
@@ -78,6 +79,8 @@ def get_settings() -> Settings:
         ),
         # Free-tier calls normally take 1-4 s but sometimes hang; give up early and use the next model.
         llm_timeout_s=float(os.getenv("LLM_TIMEOUT_S", "12")),
+        # If a model hasn't answered after this many seconds, race the next one (0 turns it off).
+        llm_hedge_after_s=float(os.getenv("LLM_HEDGE_AFTER_S", "4")),
         user_agent=os.getenv(
             "CRAWLER_USER_AGENT",
             "PlacidWayAssessmentBot/1.0 (website knowledge chatbot; contact: dawoodjaffry12@gmail.com)",
