@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PlacidWay Assistant</title>
+  <meta name="description" content="Answers visitor questions using only content from selected PlacidWay pages, with a source link for every answer.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f766e'/%3E%3Cpath d='M9 11h14v9H15l-4 3v-3H9z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 6h16v10h-9l-5 4v-4H4z" fill="currentColor"/></svg>
+        </div>
+        <div>
+          <h1>PlacidWay Assistant</h1>
+          <p class="subtitle">Answers only from 7 PlacidWay pages · every answer links its source</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button type="button" class="ghost" id="sourcesBtn" aria-expanded="false" aria-controls="sourcesPanel">Sources</button>
+        <button type="button" class="ghost" id="newChatBtn">New chat</button>
+      </div>
+    </header>
+
+    <aside class="sources-panel" id="sourcesPanel" hidden>
+      <div class="sources-head">
+        <h2>What I know</h2>
+        <button type="button" class="ghost small" id="closeSources" aria-label="Close sources">Close</button>
+      </div>
+      <p class="muted" id="sourcesMeta">Loading…</p>
+      <ol class="source-pages" id="sourcePages"></ol>
+      <p class="muted small">I don't use any other website or general knowledge. If something isn't on these pages, I'll say so.</p>
+    </aside>
+
+    <main class="chat" id="chat" aria-live="polite">
+      <div class="msg bot welcome">
+        <div class="bubble">
+          <p>Hi! I can answer questions about <strong>ITC Immunity Therapy Center</strong> in Tijuana, Mexico (its alternative cancer treatment packages, prices, what's included, travel and patient videos) and about <strong>alternative-medicine prices abroad</strong>.</p>
+          <p>Ask in any language. Try one of these:</p>
+          <div class="chips" id="chips">
+            <button type="button" class="chip">How much does alternative adrenal cancer treatment cost in Mexico?</button>
+            <button type="button" class="chip">What is included in the anal cancer treatment package?</button>
+            <button type="button" class="chip">Is ozone therapy cheaper in Mexico or Turkey?</button>
+            <button type="button" class="chip">¿Qué incluye el programa para pacientes internos?</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <form class="composer" id="composer" autocomplete="off">
+      <label for="input" class="visually-hidden">Your question</label>
+      <textarea id="input" rows="1" maxlength="800" placeholder="Ask about treatments, prices, what's included…" required></textarea>
+      <button type="submit" class="send" id="sendBtn" aria-label="Send">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 20l18-8L3 4v6l12 2-12 2z" fill="currentColor"/></svg>
+      </button>
+    </form>
+    <p class="footnote">Demo for PlacidWay's AI assessment. Answers can be wrong; confirm prices with PlacidWay before booking.</p>
+  </div>
+
+  <template id="leadTemplate">
+    <form class="lead-form" novalidate>
+      <p class="lead-title">Request a free, personalised quote</p>
+      <div class="lead-grid">
+        <label>Name<input name="name" type="text" maxlength="100" required></label>
+        <label>Email<input name="email" type="email" maxlength="200" required></label>
+      </div>
+      <label>What would you like a quote for?<textarea name="question" rows="2" maxlength="1000"></textarea></label>
+      <label class="consent"><input name="consent" type="checkbox" required> I agree that PlacidWay may contact me about this quote.</label>
+      <div class="lead-actions">
+        <button type="submit" class="primary">Send request</button>
+        <a class="link" target="_blank" rel="noopener">or use PlacidWay's contact page</a>
+      </div>
+      <p class="muted small">Demo: requests are saved to this assessment's log, not sent to PlacidWay.</p>
+      <p class="lead-status" role="status"></p>
+    </form>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
