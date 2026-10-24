@@ -12,6 +12,8 @@
   --warn-bg: #fff8e6;
   --warn-border: #f1d58a;
   --error: #b42318;
+  --scroll-thumb: rgb(15 118 110 / 0.35);
+  --scroll-thumb-hover: rgb(15 118 110 / 0.55);
   --radius: 14px;
   --font: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, "Noto Sans Arabic", sans-serif;
 }
@@ -31,7 +33,24 @@
     --warn-bg: #2b2412;
     --warn-border: #5c4a1c;
     --error: #ff8a80;
+    --scroll-thumb: rgb(43 179 166 / 0.42);
+    --scroll-thumb-hover: rgb(43 179 166 / 0.72);
   }
+}
+
+/* Slim scrollbars: chat log, sources panel, input box, "How I found this" */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 999px;
+  border: 2px solid transparent; /* inset from the edge: a 6px visible thumb */
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: var(--scroll-thumb-hover); }
+::-webkit-scrollbar-corner { background: transparent; }
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) transparent; }
 }
 
 * { box-sizing: border-box; }
