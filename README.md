@@ -5,7 +5,8 @@ Center in Tijuana: clinic profile, three treatment packages, videos, price list,
 alternative-medicine price comparison). Every answer links the page it came from, prices are checked
 in code before they reach the user, and when the pages don't say something the bot says so.
 
-- **Live demo:** _added after deployment_
+- **Live demo:** https://placidway-website-chatbot.vercel.app
+- **Code:** https://github.com/Jaffry12/placidway-website-chatbot
 - **Test results for the 8 brief questions:** [docs/test-results.md](docs/test-results.md)
 - **Write-up (limitations and next steps):** [WRITEUP.md](WRITEUP.md)
 
