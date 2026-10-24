@@ -1,4 +1,4 @@
-<!-- https://www.placidway.com/package/7903/Alternative-Adenocarcinoma-Cancer-Treatment-Package-in-Tijuana-Mexico-by-ITC | fetched 2026-10-24T17:23:05+00:00 -->
+<!-- https://www.placidway.com/package/7903/Alternative-Adenocarcinoma-Cancer-Treatment-Package-in-Tijuana-Mexico-by-ITC | fetched 2026-10-24T18:14:43+00:00 -->
 
 # Alternative Adenocarcinoma Cancer Treatment Package in Tijuana, Mexico by ITC
 
@@ -22,8 +22,8 @@ Continued Post-Care: A structured follow-up consultation three months after disc
 ## Cost of Adenocarcinoma Cancer Treatment in Tijuana, Mexico
 Choosing an Alternative Adenocarcinoma Cancer Treatment in Tijuana Mexico at ITC involves choosing a high-value medical investment. The costs are structured to cover intensive therapeutic interventions over a three-week period, providing a level of one-on-one medical attention. Below is the breakdown of the primary program tiers available to international patients.
 Program Type | Duration | Total Cost (USD)
-Out-Patient Program | 3 Weeks | $18,995
-In-Patient Program | 3 Weeks | $30,000
+Program Type: Out-Patient Program | Duration: 3 Weeks | Total Cost (USD): $18,995
+Program Type: In-Patient Program | Duration: 3 Weeks | Total Cost (USD): $30,000
 Note: The In-Patient program is specifically designed for those requiring 24/7 medical supervision or those with mobility challenges.
 
 ## Included in the Out-Patient Program ($18,995 USD)

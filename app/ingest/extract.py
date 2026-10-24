@@ -55,7 +55,7 @@ IGNORED_HEADING = re.compile(r"^(medical center reviews|package price)$", re.I)
 UI_TEXT = {
     "share this listing", "copy link", "chat with center", "read more", "read less", "view more",
     "view all", "see more", "send", "×", "all", "watch video", "book now", "get a free quote",
-    "request a free quote", "actions", "next", "previous", "close", "show more", "show less",
+    "request a free quote", "action", "actions", "view profile", "next", "previous", "close", "show more", "show less",
     "medical center reviews", "speak with a specialist today", "contact placidway for a free quote",
     "write a review", "messenger whatsapp email free call", "contact itc for consultation",
 }
@@ -110,6 +110,10 @@ def _card_heading(el: Tag) -> Tag | None:
     if len(headings) != 1 or len(el.get_text(" ", strip=True)) > 1500:
         return None
     heading = headings[0]
+    if NOISE_HEADING.match(_text(heading)):
+        # e.g. the price list's address box shares a container with the "Request your Free Quote"
+        # form; hoisting that heading would file the address under a dropped widget.
+        return None
     first_text = next((s for s in el.find_all(string=True) if s.strip()), None)
     if first_text is None or heading in first_text.parents:
         return None
@@ -127,22 +131,46 @@ class _Walker:
         if text:
             self.blocks.append(("text", 0, text))
 
-    def row(self, tr: Tag) -> None:
+    @staticmethod
+    def cell_value(cell: Tag) -> str:
+        if cell.find("li"):  # keep list items apart: "Breast Cancer; Prostate Cancer; ..."
+            return "; ".join(_text(li) for li in cell.find_all("li"))
+        if cell.find(["p", "div", "br"]):
+            return _clean("; ".join(s.strip() for s in cell.find_all(string=True) if s.strip()))
+        return _text(cell)
+
+    def row(self, tr: Tag, headers: list[str] | None = None) -> None:
+        """One table row per line. With a header row, every cell carries its column name
+        ("Clinic / Surgeon: Stem Health ... | Standard: $1000 | Procedure: Ozone Therapy"), so a row
+        still says what its price is for when read on its own."""
         cells: list[str] = []
-        for cell in tr.find_all(["td", "th"], recursive=False):
-            if cell.find("li"):  # keep list items apart: "Breast Cancer; Prostate Cancer; ..."
-                value = "; ".join(_text(li) for li in cell.find_all("li"))
-            elif cell.find(["p", "div", "br"]):
-                value = _clean("; ".join(s.strip() for s in cell.find_all(string=True) if s.strip()))
-            else:
-                value = _text(cell)
-            if not value or value.lower() in UI_TEXT:
+        previous = None
+        for index, cell in enumerate(tr.find_all(["td", "th"], recursive=False)):
+            value = self.cell_value(cell)
+            header = headers[index] if headers and index < len(headers) else ""
+            if not value or value.lower() in UI_TEXT or header.lower() in UI_TEXT:
                 continue
-            if cells and cells[-1] == value:  # "Breast Cancer | Breast Cancer" -> one cell
+            if value == previous:  # "Breast Cancer | Breast Cancer" -> one cell
                 continue
-            cells.append(value)
+            previous = value
+            cells.append(f"{header}: {value}" if header else value)
         if cells:
             self.line(" | ".join(cells))
+
+    def table(self, table: Tag) -> None:
+        rows = [tr for tr in table.find_all("tr") if tr.find_parent("table") is table]
+        if not rows:
+            return
+        first = rows[0]
+        has_header = first.find("th") is not None or first.find_parent("thead") is not None
+        if not has_header:
+            for tr in rows:
+                self.row(tr)
+            return
+        headers = [self.cell_value(c) for c in first.find_all(["td", "th"], recursive=False)]
+        self.row(first)  # the header line itself, e.g. "Program Type | Duration | Total Cost (USD)"
+        for tr in rows[1:]:
+            self.row(tr, headers)
 
     def walk(self, el: Tag) -> None:
         buffer: list[str] = []
@@ -170,6 +198,9 @@ class _Walker:
                 flush()
             elif name in INLINE and not child.find(BLOCK_LIKE):
                 buffer.append(child.get_text(" "))
+            elif name == "table":
+                flush()
+                self.table(child)
             elif name == "tr":
                 flush()
                 self.row(child)

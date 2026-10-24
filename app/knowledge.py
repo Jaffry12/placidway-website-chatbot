@@ -25,7 +25,12 @@ STOPWORDS = set(
     who why will with would you your about also any more most much other some such very just""".split()
 )
 MAX_PER_PAGE = 4
-PRICE_QUESTION = re.compile(r"(cost|costs|price|prices|pricing|fee|fees|cheap\w*|expensive|how much|usd)|\$", re.I)
+PRICE_QUESTION = re.compile(r"\b(cost|costs|price|prices|pricing|fee|fees|cheap\w*|expensive|how much|usd)\b|\$", re.I)
+# Words visitors use that the pages phrase differently (keys are stems, see _stem).
+SYNONYMS = {
+    "address": ["location"], "locat": ["location", "address"],
+    "cost": ["pric"], "pric": ["cost"], "fee": ["cost", "pric"], "doctor": ["dr", "physician"],
+}
 MONEY_IN_TEXT = re.compile(r"(\$|USD)\s?\d")
 PRICE_BOOST = 1.35  # cost questions should reach the table with the numbers, not the prose around it
 DUPLICATE_OVERLAP = 0.8  # the same patient reviews appear on three of the pages
@@ -112,7 +117,8 @@ class KnowledgeBase:
 
     def search(self, query: str, k: int = 6) -> list[Hit]:
         # Each term once: the rewritten question repeats "ITC ... Tijuana" and would drown the rest.
-        terms = list(dict.fromkeys(tokenize(query)))
+        terms = tokenize(query)
+        terms = list(dict.fromkeys(terms + [syn for t in terms for syn in SYNONYMS.get(t, [])]))
         if not terms or self._index is None:
             return []
         scores = self._index.scores(terms)

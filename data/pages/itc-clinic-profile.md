@@ -1,4 +1,4 @@
-<!-- https://www.placidway.com/profile/5/Alternative-Cancer-Treatment-by-ITC-Immunity-Therapy-Center | fetched 2026-10-24T17:23:04+00:00 -->
+<!-- https://www.placidway.com/profile/5/Alternative-Cancer-Treatment-by-ITC-Immunity-Therapy-Center | fetched 2026-10-24T18:14:33+00:00 -->
 
 # ITC Immunity Therapy Center - Alternative Cancer Treatment in Tijuana
 
@@ -39,7 +39,7 @@ Whether exploring alternative treatment or complementary therapy alongside stand
 ## Alternative Cancer Treatment Cost and Packages
 Understanding the overall cancer treatment cost abroad allows families to plan financially. ITC maintains a transparent pricing model to ensure international patients can evaluate their options without hidden fees.
 Base Package Price | Cancer Types Treated at ITC | Standard Inclusions
-$18,995 | Breast Cancer; Prostate Cancer; Lung Cancer; Colon & Colorectal Cancer; Pancreatic Cancer; Ovarian & Cervical Cancer; Liver & Kidney Cancer; Leukemia & Lymphoma; Melanoma & Skin Cancers; Brain Tumors; Stomach & Esophageal Cancer; Sarcoma & Bone Cancers | Physician consultations & daily care; Customized alternative therapy suite; Daily IV nutrition & natural supplements; Medical monitoring & nursing care; Local transportation assistance; Patient companion support services
+Base Package Price: $18,995 | Cancer Types Treated at ITC: Breast Cancer; Prostate Cancer; Lung Cancer; Colon & Colorectal Cancer; Pancreatic Cancer; Ovarian & Cervical Cancer; Liver & Kidney Cancer; Leukemia & Lymphoma; Melanoma & Skin Cancers; Brain Tumors; Stomach & Esophageal Cancer; Sarcoma & Bone Cancers | Standard Inclusions: Physician consultations & daily care; Customized alternative therapy suite; Daily IV nutrition & natural supplements; Medical monitoring & nursing care; Local transportation assistance; Patient companion support services
 Patients seeking comprehensive alternative cancer therapy options can request a personalized quote based on their required length of stay and customized therapeutic needs.
 
 ## Risks and Important Medical Considerations

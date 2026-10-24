@@ -31,7 +31,7 @@ def test_price_list_and_comparison_pages(kb):
 
 
 def test_comparisons_keep_both_near_identical_package_pages(kb):
-    pages = top_pages(kb, "compare cost adrenal anal cancer package cheaper", 6)
+    pages = top_pages(kb, "compare cost adrenal anal cancer package cheaper", 8)  # production k
     assert "adrenal-package" in pages and "anal-package" in pages
 
 
@@ -52,3 +52,22 @@ def test_comparison_page_prices_stay_with_their_cards(kb):
 
 def test_unrelated_questions_score_low(kb):
     assert kb.search("weather forecast", 5) == []
+
+
+def test_price_questions_are_detected_by_whole_words():
+    from app.knowledge import PRICE_QUESTION
+
+    for q in ["How much is it?", "What does it cost", "prices in Mexico", "any fees?", "is it cheaper", "$500?"]:
+        assert PRICE_QUESTION.search(q), q
+    for q in ["What is included?", "costume", "Who is the doctor?"]:
+        assert not PRICE_QUESTION.search(q), q
+
+
+def test_query_synonyms_reach_differently_worded_pages(kb):
+    assert any("Padre Kino 10133" in h.chunk.text for h in kb.search("What is the clinic's address?", 8))
+
+
+def test_clinic_facts_box_survives_extraction(kb):
+    price_list = kb.pages["itc-price-list"]["markdown"]
+    for fact in ("Padre Kino 10133", "Price Range: $18995 - $18995", "Associated Doctors: Dr. Carlos Bautista"):
+        assert fact in price_list, fact

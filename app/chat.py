@@ -19,7 +19,7 @@ from typing import Protocol
 
 from .config import Settings
 from .events import EventLog
-from .guard import unsupported_amounts, unsupported_user_claims
+from .guard import unsupported_amounts, unsupported_doctor_names, unsupported_user_claims
 from .knowledge import Hit, KnowledgeStore
 from .prompts import ANSWER_SYSTEM, INTENT_NOTES, RETRY_NOTE, ROUTER_SYSTEM
 
@@ -141,6 +141,12 @@ class ChatService:
             problems.append(
                 f"these amounts do not appear in the sources you cited: {', '.join(invented)} "
                 "(cite the source each amount comes from, or remove it)"
+            )
+        names = unsupported_doctor_names(draft.answer, cited_text)
+        if names:
+            problems.append(
+                f"these doctor names are not spelled this way in the sources you cited: {', '.join(names)} "
+                "(copy names exactly from the cited source)"
             )
         claims = unsupported_user_claims(message, cited_text)
         if claims and draft.user_claim_supported is not False:

@@ -40,3 +40,12 @@ def test_user_claims_not_in_sources_are_reported():
 
 def test_non_money_numbers_are_ignored():
     assert unsupported_amounts("The program lasts 3 weeks with a follow-up after 3 months.", SOURCE) == []
+
+
+def test_doctor_names_must_match_the_cited_source():
+    from app.guard import unsupported_doctor_names
+
+    cited = "Dr. Carlos Bautista, M.D. - Medical Director\nDr. David Alvarez, M.D."
+    assert unsupported_doctor_names("Led by Dr. Carlos Bautista with Dr. David Alvarez.", cited) == []
+    assert unsupported_doctor_names("The medical director is Dr. Carlos Batista.", cited) == ["Carlos Batista"]
+    assert unsupported_doctor_names("Dr. Carlos Bautista Medical Director leads it; Dr. Alvarez helps.", cited) == []

@@ -55,8 +55,8 @@ def test_tables_become_rows_without_ui_columns():
     assert sections["Cost of Adrenal Cancer Treatment"] == [
         "Prices for the three-week programs:",
         "Program Type | Total Cost (USD)",
-        "Out-Patient Program | $18,995",
-        "In-Patient Program | $30,000",
+        "Program Type: Out-Patient Program | Total Cost (USD): $18,995",
+        "Program Type: In-Patient Program | Total Cost (USD): $30,000",
     ]
 
 
@@ -100,3 +100,27 @@ def test_chunks_follow_sections_and_repeat_table_headers():
     assert all(c.text.startswith("Therapy | Price") for c in price_chunks)
     assert all(len(c.text.split()) <= 130 for c in price_chunks)
     assert chunks[-1].section == "Other" and chunks[-1].text == "Short."
+
+
+def test_text_before_a_widget_heading_stays_in_its_own_section():
+    # The price list puts the clinic's address box and the quote form in one container.
+    html = (
+        "<div class='package-dt-page-main'><h1>Prices</h1><h2>Location</h2>"
+        "<div><ul><li>Location: Blvd. Padre Kino 10133, Tijuana</li><li>Price Range: $18995 - $18995</li></ul>"
+        "<h2>Request your Free Quote</h2><p>Select a treatment</p></div></div>"
+    )
+    sections = lines_of(extract(html))
+    assert sections["Location"] == ["- Location: Blvd. Padre Kino 10133, Tijuana", "- Price Range: $18995 - $18995"]
+    assert "Select a treatment" not in extract(html).markdown()
+
+
+def test_table_cells_carry_their_column_names():
+    # Read alone, "Stem Health ... | $1000" looks like a stem cell price; it is an ozone therapy price.
+    html = (
+        "<div class='package-dt-page-main'><h1>Prices</h1><h2>Clinics</h2><table>"
+        "<tr><th>Clinic / Surgeon</th><th>Standard</th><th>Procedure</th><th>Action</th></tr>"
+        "<tr><td>Stem Health Guadalajara</td><td>$1000</td><td>Ozone Therapy</td><td>View Profile</td></tr>"
+        "</table></div>"
+    )
+    rows = lines_of(extract(html))["Clinics"]
+    assert rows[1] == "Clinic / Surgeon: Stem Health Guadalajara | Standard: $1000 | Procedure: Ozone Therapy"

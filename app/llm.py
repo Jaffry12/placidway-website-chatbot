@@ -60,12 +60,13 @@ class LLMClient:
 
         Free-tier latency is spiky (the same call takes 1.5 s or 20 s), so the request is also
         hedged: if the current model hasn't answered after `llm_hedge_after_s`, the next model is
-        asked in parallel and the first valid answer wins.
+        asked in parallel and the first valid answer wins. The whole call is capped at `llm_budget_s`.
         """
         candidates = [model] + [m for m in self.settings.llm_fallback_models if m != model]
         now = time.monotonic()
         queue = [m for m in candidates if self._resting_until.get(m, 0) <= now] or candidates
         hedge_after = self.settings.llm_hedge_after_s
+        deadline = now + self.settings.llm_budget_s
         pool = ThreadPoolExecutor(max_workers=2)
         pending: dict = {}
         errors: list[LLMError] = []
@@ -77,11 +78,16 @@ class LLMClient:
         launch()
         try:
             while pending:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise LLMUnavailable(f"no model answered within {self.settings.llm_budget_s:.0f}s")
                 can_hedge = bool(queue) and len(pending) < 2 and hedge_after > 0
-                done, _ = wait(pending, timeout=hedge_after if can_hedge else None, return_when=FIRST_COMPLETED)
+                timeout = min(hedge_after, remaining) if can_hedge else remaining
+                done, _ = wait(pending, timeout=timeout, return_when=FIRST_COMPLETED)
                 if not done:
-                    log.info("model %s is slow; asking %s in parallel", next(iter(pending.values())), queue[0])
-                    launch()
+                    if can_hedge and time.monotonic() < deadline:
+                        log.info("model %s is slow; asking %s in parallel", next(iter(pending.values())), queue[0])
+                        launch()
                     continue
                 for future in done:
                     candidate = pending.pop(future)
@@ -90,7 +96,7 @@ class LLMClient:
                     except LLMError as exc:
                         log.warning("model %s failed (%s); trying the next one", candidate, exc)
                         errors.append(exc)
-                        if queue and not pending:
+                        if queue and not pending and time.monotonic() < deadline:
                             launch()
             raise errors[-1] if errors else LLMUnavailable("no model available")
         finally:

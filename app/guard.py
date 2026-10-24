@@ -69,3 +69,18 @@ def unsupported_user_claims(user_text: str, source_text: str) -> list[str]:
     """Prices the user quoted that the sources don't contain (the "I heard it costs $50" trick)."""
     known = numbers_in(source_text)
     return [raw for raw, value in money_amounts(user_text) if value not in known]
+
+
+DOCTOR = re.compile(r"\bDr\.?\s+((?:[A-Z][A-Za-z\u00C0-\u017F'-]+\s?){1,3})")
+
+
+def unsupported_doctor_names(answer: str, source_text: str) -> list[str]:
+    """Doctor names in the answer that the cited sources don't contain, e.g. a misspelling copied
+    from a patient review ("Dr. Carlos Batista") when the cited doctor list says "Bautista"."""
+    missing = []
+    for match in DOCTOR.finditer(answer):
+        # First two words only: "Dr. Carlos Bautista Medical Director" is still the right name.
+        name = " ".join(match.group(1).split()[:2])
+        if name and name not in source_text and name not in missing:
+            missing.append(name)
+    return missing

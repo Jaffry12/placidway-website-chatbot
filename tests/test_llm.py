@@ -75,3 +75,15 @@ def test_every_model_failing_raises(tmp_path):
     llm = client(tmp_path, lambda request: httpx.Response(503, text="overloaded"))
     with pytest.raises(LLMError):
         llm.chat_json("answer-model", [])
+
+
+def test_total_budget_caps_a_call_when_every_model_hangs(tmp_path):
+    def handler(request):
+        time.sleep(1.0)
+        return completion('{"answer": "too late"}')
+
+    llm = client(tmp_path, handler, llm_hedge_after_s=0.1, llm_budget_s=0.4)
+    started = time.monotonic()
+    with pytest.raises(LLMError, match="within"):
+        llm.chat_json("answer-model", [])
+    assert time.monotonic() - started < 0.8

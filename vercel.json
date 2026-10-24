@@ -3,7 +3,7 @@
   "buildCommand": "",
   "outputDirectory": "public",
   "functions": {
-    "api/index.py": { "maxDuration": 60, "includeFiles": "{app/**,data/knowledge.json}" }
+    "api/index.py": { "maxDuration": 300, "includeFiles": "{app/**,data/knowledge.json}" }
   },
   "rewrites": [{ "source": "/api/(.*)", "destination": "/api/index.py" }]
 }

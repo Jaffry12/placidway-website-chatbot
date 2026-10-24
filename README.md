@@ -24,14 +24,14 @@ The knowledge snapshot (`data/knowledge.json`) is committed, so the bot works wi
 |---|---|
 | `python -m scripts.ingest` | Re-crawl the 7 pages, rebuild the snapshot, print which pages changed |
 | `python -m scripts.run_test_questions` | Ask the brief's test questions and write `docs/test-results.md` (`--url` to test a deployment) |
-| `python -m pytest` | 42 tests: extraction, chunking, retrieval, price checks, answer pipeline, API |
+| `python -m pytest` | 84 tests: robots.txt rules, extraction, chunking, a 25-question retrieval recall check, price/claim/name checks, model fallback, answer pipeline, API |
 
 ## How it works
 
 ```mermaid
 flowchart LR
   subgraph Ingestion["Ingestion (CLI, admin endpoint or weekly CI)"]
-    F[Polite fetcher<br/>robots.txt, clear User-Agent, 1 req/s] --> E[Extractor<br/>page content only, noise removed]
+    F[Polite fetcher<br/>robots.txt + Crawl-delay,<br/>clear User-Agent] --> E[Extractor<br/>page content only, noise removed]
     E --> C[Chunker<br/>heading-aware, ~180 words]
     C --> S[(knowledge.json<br/>+ readable data/pages/*.md)]
   end
@@ -40,7 +40,7 @@ flowchart LR
     R --> B[BM25 search<br/>top 8 passages]
     S --> B
     B --> A[Answer model<br/>JSON answer + cited source ids]
-    A --> G{Checks in code<br/>prices, claims, citations}
+    A --> G{Checks in code<br/>prices, claims,<br/>doctor names, citations}
     G -- pass --> U[Answer + source links]
     G -- fail --> A2[One corrected retry] --> G2{Checks} -- fail --> H[Honest fallback<br/>'I don't know' + quote form]
     G2 -- pass --> U
@@ -48,14 +48,23 @@ flowchart LR
 ```
 
 ### 1. Collecting the content (`app/ingest/`)
-- **Only the 7 URLs from the brief** (`app/sources.py`). The fetcher reads `robots.txt`, identifies itself
-  (`PlacidWayAssessmentBot/1.0 ... contact: ...`), waits 1 second between requests and retries
-  server errors. If a page can't be downloaded during a refresh, its previous copy is kept.
+- **Only the 7 URLs from the brief** (`app/sources.py`). The fetcher identifies itself
+  (`PlacidWayAssessmentBot/1.0 ... contact: ...`), retries server errors, and keeps a page's previous
+  copy if it can't be downloaded during a refresh.
+- **robots.txt is respected properly** (`app/ingest/robots.py`, RFC 9309). PlacidWay's file starts with
+  `Allow: /` and lists `Disallow` rules after it; Python's built-in `urllib.robotparser` applies the
+  first matching line and would allow *everything*. The standard says the longest matching rule wins,
+  so that's what this parser does. The file also sets `Crawl-delay: 10`: the brief asks for about one
+  request per second and robots.txt asks for ten seconds, so the crawler waits ten (the stricter of the
+  two). A full refresh therefore takes about 80 seconds.
 - **Extraction keeps the page's own content.** The pages are 300-900 KB and full of site-wide widgets.
   The extractor drops scripts, forms, booking and quote widgets, share buttons, accreditation logos,
   footer blocks and cross-promotion of *other* clinics. Without this, "Spinal Fusion Surgery in Saudi
   Arabia, $50,000" from a sidebar could be quoted as if it were an ITC price. Kept: headings, paragraphs,
-  lists, and tables as `cell | cell` rows (UI-only columns such as "Chat with Center" removed).
+  lists, and tables. Each table cell carries its column name (`Clinic / Surgeon: Stem Health Guadalajara |
+  Standard: $1000 | Procedure: Ozone Therapy`), so a row still says what its price is for when read on
+  its own (without that, "$1,000 at Stem Health" was once quoted as a stem cell price). UI-only columns
+  such as "Chat with Center" are removed.
 - Things specific to these pages that are handled, each with a test:
   - The comparison page prints each package's **price above its title**. A naive top-to-bottom read gives
     the Croatia program (no price listed) the Bangkok program's $24,000. Each card is read title-first.
@@ -65,17 +74,19 @@ flowchart LR
     with unrendered template code are skipped and counted.
   - Labels repeated on every card (the clinic name under each of 129 videos) are kept once; otherwise
     they drown keyword search.
+  - The price list's address box shares a container with the quote form, so the form's heading is never
+    allowed to "claim" the text around it (the address would otherwise be dropped with the form).
 - **Readable output:** every page is also saved as markdown in [`data/pages/`](data/pages), so you can
   see exactly what the bot knows.
 
 ### 2. Chunking (`app/ingest/chunk.py`)
 Chunks follow the page's headings and never mix two top-level sections. Small sub-sections (FAQ entries,
 video cards) are packed together up to ~180 words, and a table split across chunks repeats its header
-row, so `$30,000` always travels with `Program Type | Duration | Total Cost (USD)`. 120 chunks in total.
+row. 121 chunks in total.
 
 ### 3. Retrieval (`app/knowledge.py`)
 BM25 keyword search, written out in about 25 lines with Lucene's IDF.
-- **Why not embeddings?** The corpus is tiny (120 chunks) and the questions hinge on exact words: a
+- **Why not embeddings?** The corpus is tiny (121 chunks) and the questions hinge on exact words: a
   treatment name, "in-patient", "$18,995". BM25 is instant, needs no extra API or vector store, and
   every score can be explained in the review.
 - **Lucene IDF** matters: "ITC", "Tijuana" and "cancer" appear in almost every chunk, so they must count
@@ -83,8 +94,12 @@ BM25 keyword search, written out in about 25 lines with Lucene's IDF.
 - **Multilingual and follow-up questions** are handled before search: a small router model rewrites the
   message into a standalone English question plus keywords ("¿y el tiempo de recuperación?" after an
   adrenal question becomes "recovery time for adrenal cancer treatment").
-- Cost questions slightly boost passages that contain prices. Near-identical passages (the same reviews
-  appear on three pages) are returned once, unless the user named both pages ("adrenal vs anal").
+- A short synonym list bridges visitor words and page words (address -> location, cost <-> price,
+  doctor -> Dr./physician). Cost questions slightly boost passages that contain prices.
+- Near-identical passages (the same reviews appear on three pages) are returned once, unless the user
+  named both pages ("adrenal vs anal").
+- **Measured:** `tests/test_retrieval_eval.py` asks 25 realistic questions with the raw question text
+  (no rewriting, i.e. the worst case) and checks the answering fact is in the top 8: 25/25.
 
 ### 4. Answering and grounding (`app/chat.py`, `app/prompts.py`, `app/guard.py`)
 1. **Router** (Gemini 3.1 Flash-Lite): language, intent (`question`, `medical_advice`, `booking`,
@@ -100,11 +115,16 @@ BM25 keyword search, written out in about 25 lines with Lucene's IDF.
    - If the user states a price ("I heard it costs $50"), the answer may not call it correct unless a
      cited source contains it. `$50` does exist on these pages, as a consultation fee, so "it appears
      somewhere" is not enough.
+   - Doctor names must be spelled as in a cited source (a patient review spells the medical director
+     "Batista"; the clinic's doctor list says "Bautista").
    - Factual answers must cite at least one source.
    - On failure the model gets one corrected retry; if that also fails, the bot gives an honest
      "I couldn't find a reliable answer" and offers the quote form. It never shows an unchecked price.
-4. **Honest gaps:** `not_found` answers are logged (`unanswered.jsonl` plus the server log) so PlacidWay
-   can see content gaps.
+4. **Honest gaps:** `not_found` answers say so, suggest a free quote, and are logged
+   (`unanswered.jsonl` plus the server log) so PlacidWay can see content gaps.
+5. **Speed:** free-tier latency is spiky, so if a model hasn't answered within 4 s the next model is asked
+   in parallel; each model call is capped at 25 s. Measured on 24 mixed questions: median 3.7 s,
+   90th percentile 11 s.
 
 ### Tools and models, and why
 | Choice | Why |
@@ -141,7 +161,7 @@ per minute to protect the free API key. No secrets live in the code: everything 
 ## Requirements coverage
 | Brief item | Where |
 |---|---|
-| Content ingestion from the shared URLs only | `app/sources.py`, `app/ingest/fetch.py` (robots.txt, User-Agent, 1 req/s) |
+| Content ingestion from the shared URLs only | `app/sources.py`, `app/ingest/fetch.py`, `app/ingest/robots.py` (robots.txt incl. Crawl-delay, User-Agent) |
 | Knowledge base that finds the right content | `app/ingest/chunk.py`, `app/knowledge.py` |
 | Grounded answers citing source URLs | Answer prompt + citation check; links under every answer |
 | Honest "I don't know" + free-quote suggestion | `not_found` status, fallback answer, quote button |
@@ -159,11 +179,11 @@ per minute to protect the free API key. No secrets live in the code: everything 
 ```
 app/
   sources.py        the 7 allowed URLs
-  ingest/           fetch.py · extract.py · chunk.py · pipeline.py
+  ingest/           fetch.py · robots.py · extract.py · chunk.py · pipeline.py
   knowledge.py      BM25 index, search, hot-swappable store
   prompts.py        router and answer prompts
   chat.py           route -> retrieve -> answer -> verify
-  guard.py          money parsing and checks
+  guard.py          money, user-claim and doctor-name checks
   llm.py            OpenAI-compatible client with per-model fallback
   events.py         unanswered-question and lead logs
   main.py           FastAPI app
@@ -177,4 +197,5 @@ tests/              pytest suite
 ## Deploying (Vercel)
 `vercel deploy --prod` from the repo root. Set `LLM_API_KEY` (and optionally `ADMIN_TOKEN`,
 `LEAD_WEBHOOK_URL`) in the project's environment variables. Static files come from `public/`;
-`/api/*` is rewritten to the Python function in `api/index.py`.
+`/api/*` is rewritten to the Python function in `api/index.py`, whose time limit is raised to 300 s
+so an admin refresh can finish while honouring the 10-second crawl delay.
