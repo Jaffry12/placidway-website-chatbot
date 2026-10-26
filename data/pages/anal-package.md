@@ -1,10 +1,10 @@
-<!-- https://www.placidway.com/package/7901/Alternative-Anal-Cancer-Treatment-Package-in-Tijuana-Mexico-by-ITC | fetched 2026-10-24T18:15:11+00:00 -->
+<!-- https://www.placidway.com/package/7901/Alternative-Anal-Cancer-Treatment-Package-in-Tijuana-Mexico-by-ITC | fetched 2026-10-26T12:39:14+00:00 -->
 
 # Alternative Anal Cancer Treatment Package in Tijuana, Mexico by ITC
 
 Tijuana, Mexico
 Publish date: Mar 02, 2026 Medically reviewed by: Dr. Carlos Bautista on Mar 02, 2026 Author: Aamina Bibi
-5 Reviews
+6 Reviews
 Price starting from: $18,995
 
 ## Colorectal Health Support: Anal Cancer Treatment in Tijuana, Mexico
