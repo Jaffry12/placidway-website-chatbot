@@ -1,11 +1,11 @@
-<!-- https://www.placidway.com/search-medical-pricings/Alternative-Medicine/All/1 | fetched 2026-10-26T12:39:44+00:00 -->
+<!-- https://www.placidway.com/search-medical-pricings/Alternative-Medicine/All/1 | fetched 2026-11-02T15:21:45+00:00 -->
 
 # Alternative Medicine Cost Abroad – Compare Transparent Prices
 
 What treatment
 
 Alternative Medicine costs on average $15032, with most clinics quoting between $64 and $30000. Based on verified quotes from 4+ clinics, last updated 2026-06-03. Compare clinic prices, see what's included, and estimate your total trip cost below.
-Last Updated: Oct 2026 Author: Iqra Naseer Medically reviewed by Dr. Felix Mendes
+Last Updated: Nov 2026 Author: Iqra Naseer Medically reviewed by Dr. Felix Mendes
 10 Reviews
 Price starting from: $64
 
@@ -117,33 +117,26 @@ Your Health: Consult your local licensed healthcare provider before pursuing any
 ## Alternative Medicine Solutions Near You: Explore Top Medical Centers
 Discover how Alternative Medicine is transforming lives at leading medical centers in,. Dive into center profile, specialties, doctors, reviews, etc. and explore the best options tailored to your needs in this region.
 
+### Instituto de Terapia Celular - Stem Cell Guadalajara Mexico
+Tijuana,Guadalajara, Mexico
+
 ### Regenerative Medicine - Stem Cells by ITC Immunity Therapy Center
 (19 Reviews)
-Tijuana, Mexico
-
-### ITC Immunity Therapy Center - Alternative Cancer Treatment in Tijuana
-(6 Reviews)
 Tijuana, Mexico
 
 ### Poliklinika Labar
 (4 Reviews)
 Zadar, Croatia
-
-### EDNA Wellness - Surgeon-Led Stem Cell Clinic in Bangkok Thailand
-(59 Reviews)
-Bangkok, Thailand
+ITC Immunity Therapy Center - Alternative Cancer Treatment in Tijuana
+(6 Reviews)
+Tijuana, Mexico
 
 ## Unlock the Best Alternative Medicine Packages Just for You
 Discover the ultimate Alternative Medicine packages designed to meet your health and wellness goals. Choose the perfect fit for your journey.
 
-### Integrative Cancer Treatment
-Price starting from: $24,000
-Verita Life Thailand - Cancer Treatment in Bangkok
-- Alternative Medicine
-Bangkok, Thailand
-
 ### 10-Days Life Quality Improvement Program in Murter, Croatia
 Polyclinic Markov
+- Alternative Medicine
 Murter, Croatia
 
 ### EBOO Therapy Package in Gujarat, India by Dr. Pravin Patel
@@ -155,3 +148,8 @@ Vadodara, India
 Price starting from: $4,500
 Eliava Phage Therapy Center
 Tbilisi, Georgia
+
+### Integrative Cancer Treatment
+Price starting from: $24,000
+Verita Life Thailand - Cancer Treatment in Bangkok
+Bangkok, Thailand
