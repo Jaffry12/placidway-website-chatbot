@@ -1,4 +1,4 @@
-<!-- https://www.placidway.com/profile-videos/5/Alternative-Cancer-Treatment-by-ITC-Immunity-Therapy-Center | fetched 2026-11-02T15:21:40+00:00 -->
+<!-- https://www.placidway.com/profile-videos/5/Alternative-Cancer-Treatment-by-ITC-Immunity-Therapy-Center | fetched 2026-11-09T15:48:04+00:00 -->
 
 # Alternative Cancer Treatment Videos at ITC Tijuana
 
@@ -144,7 +144,6 @@ ITC Immunity Therapy Center - Alternative Cancer Treatment in Tijuana
 ITC Immunity Therapy Center - Alternative Cancer Treatment in Tijuana
 
 ### From Diagnosis to Recovery: Alternative GIST Treatment Journey in Mexico
-CAR-T Cell Therapy
 ITC Immunity Therapy Center - Alternative Cancer Treatment in Tijuana
 
 ### Going Natural: A Healing Journey with Alternative Breast Cancer Treatment in Mexico
@@ -409,7 +408,7 @@ Alternative Cancer Treatment by ITC - Immunity Therapy Center Jul 05 2023
 ### Chris P
 The ITC doctors, nurses, and staff were absolutely phenomenal. I was given specialized and personalized care not only for the three weeks I received therapy at their facility, but also in the months that followed as I continued home therapy. These people are in the business of caring for those with sickness and they do it with compassion and wisdom. Their confidence is encouraging and I have seen a complete turn around in my health.
 Alternative Cancer Treatment by ITC - Immunity Therapy Center Aug 09 2023
-View Center Reviews Write a review
+View Center Reviews
 ITC Immunity Therapy Center - Alternative Cancer Treatment in Tijuana
 - Location: Blvd. Padre Kino 10133, Zona Urbana Rio Tijuana, 22010 Tijuana, B.C., Mexico, Tijuana 22010, Mexico
 - Specialty: Alternative Medicine, Detox, Cancer Treatment, Chronic Diseases

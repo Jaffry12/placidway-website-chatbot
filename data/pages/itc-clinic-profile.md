@@ -1,4 +1,4 @@
-<!-- https://www.placidway.com/profile/5/Alternative-Cancer-Treatment-by-ITC-Immunity-Therapy-Center | fetched 2026-11-02T15:21:27+00:00 -->
+<!-- https://www.placidway.com/profile/5/Alternative-Cancer-Treatment-by-ITC-Immunity-Therapy-Center | fetched 2026-11-09T15:47:50+00:00 -->
 
 # ITC Immunity Therapy Center - Alternative Cancer Treatment in Tijuana
 
@@ -212,7 +212,7 @@ Alternative Cancer Treatment by ITC - Immunity Therapy Center Aug 09 2023
 
 ## About Medical Center
 - Translations: EN ES AR FR
-- Speciality: Alternative Medicine, Detox, Cancer Treatment, Chronic Diseases
+- Speciality: Alternative Medicine,Detox,Cancer Treatment,Chronic Diseases
 - Location: Blvd. Padre Kino 10133, Zona Urbana Rio Tijuana, 22010 Tijuana, B.C., Mexico, Tijuana 22010, Mexico
 - Packages: Alternative Adenocarcinoma Cancer Treatment Package in Tijuana, Mexico by ITC, Alternative Adrenal Cancer Treatment Package in Tijuana, Mexico by ITC, Alternative Anal Cancer Treatment Package in Tijuana, Mexico by ITC, Alternative Appendix Cancer Treatment Package in Tijuana, Mexico by ITC,
 - Associated Doctors: Dr. Carlos Bautista

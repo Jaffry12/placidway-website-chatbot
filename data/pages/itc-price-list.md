@@ -1,4 +1,4 @@
-<!-- https://www.placidway.com/price-list/5/Alternative-Cancer-Treatment-by-ITC-Immunity-Therapy-Center | fetched 2026-11-02T15:21:42+00:00 -->
+<!-- https://www.placidway.com/price-list/5/Alternative-Cancer-Treatment-by-ITC-Immunity-Therapy-Center | fetched 2026-11-09T15:48:06+00:00 -->
 
 # Alternative Cancer Treatment Prices at ITC Tijuana
 
@@ -37,7 +37,7 @@ Alternative Cancer Treatment by ITC - Immunity Therapy Center Aug 09 2023
 ## Location
 ITC Immunity Therapy Center - Alternative Cancer Treatment in Tijuana
 - Price Range: $18995 - $18995
-- Speciality: Alternative Medicine, Detox, Cancer Treatment, Chronic Diseases
+- Speciality: Alternative Medicine,Detox,Cancer Treatment,Chronic Diseases
 - Location: Blvd. Padre Kino 10133, Zona Urbana Rio Tijuana, 22010 Tijuana, B.C., Mexico, Tijuana 22010, Mexico
 - Packages: Alternative Adenocarcinoma Cancer Treatment Package in Tijuana, Mexico by ITC, Alternative Adrenal Cancer Treatment Package in Tijuana, Mexico by ITC, Alternative Anal Cancer Treatment Package in Tijuana, Mexico by ITC, Alternative Appendix Cancer Treatment Package in Tijuana, Mexico by ITC,
 - Associated Doctors: Dr. Carlos Bautista
